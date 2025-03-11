@@ -1,32 +1,46 @@
-import React from 'react'
-import { Appointment } from '../types'
+import React, { useEffect, useState } from 'react'
+import { useParams } from "react-router-dom";
 import { format } from 'date-fns'
-import { Calendar, Clock, X, Check } from 'lucide-react'
+import { Calendar, Clock } from 'lucide-react'
 
 const Appointments = () => {
-  const [appointments, setAppointments] = React.useState([])
-  const [loading, setLoading] = React.useState(true)
+  const { userId: paramUserId } = useParams();
+  const [userId, setUserId] = useState(paramUserId || localStorage.getItem("userId"));
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
-    fetchAppointments()
-  }, [])
+  useEffect(() => {
+    if (userId) {
+      fetchAppointments();
+    }
+  }, [userId]); // Fetch appointments only when userId is available
 
   const fetchAppointments = async () => {
+    if (!userId) return; // Prevent unnecessary API calls if userId is missing
+
     try {
-      const userId = 'your_patient_id' // Replace with actual patient ID from auth system
-  
-      const response = await fetch(`http://localhost:5000/appointments/${userId}`)
-      if (!response.ok) throw new Error('Failed to fetch')
-  
-      const data = await response.json()
-      setAppointments(data || [])
+      setLoading(true); // Start loading
+
+      const res = await fetch(`http://localhost:5000/appointments/${userId}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`, // Include auth token
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch appointments: ${res.status} ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      setAppointments(data || []);
     } catch (error) {
-      console.error('Error fetching appointments:', error)
+      console.error("Error fetching appointments:", error);
     } finally {
-      setLoading(false)
+      setLoading(false); // Stop loading
     }
-  }
-  
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -49,7 +63,7 @@ const Appointments = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">My Appointments</h1>
+      <h1 className="text-3xl font-bold mb-8" style={{ color: "#0752e8", fontSize: "30px"}}>My Appointments</h1>
       
       {appointments.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow">
@@ -60,11 +74,11 @@ const Appointments = () => {
       ) : (
         <div className="space-y-4">
           {appointments.map((appointment) => (
-            <div key={appointment.id} className="bg-white rounded-lg shadow p-6">
+            <div key={appointment.id} className="bg-white rounded-lg shadow p-6" style={{ color: "#34495e", fontSize: "20px"}}>
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">{appointment.doctors.name}</h3>
-                  <p className="text-gray-600">{appointment.doctors.specialization}</p>
+                  <h3 className="text-xl font-semibold mb-2">{appointment.doctor_name || "Unknown Doctor"}</h3>
+                  <p className="text-gray-600">{appointment.specialization || "Specialization not available"}</p>
                   <p className="text-gray-600 flex items-center mt-2">
                     <Clock className="w-4 h-4 mr-2" />
                     {format(new Date(appointment.appointment_date), 'PPP p')}
@@ -77,7 +91,7 @@ const Appointments = () => {
               
               <div className="mt-4 pt-4 border-t">
                 <h4 className="font-medium mb-2">Service</h4>
-                <p className="text-gray-600">{appointment.service}</p>
+                <p className="text-gray-600">{appointment.service || "Not specified"}</p>
                 {appointment.notes && (
                   <>
                     <h4 className="font-medium mb-2 mt-4">Notes</h4>
@@ -93,4 +107,4 @@ const Appointments = () => {
   )
 }
 
-export default Appointments
+export default Appointments;
