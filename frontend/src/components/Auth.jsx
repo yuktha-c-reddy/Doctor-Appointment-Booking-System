@@ -6,7 +6,13 @@ const Auth = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ email: '', password: '', full_name: '' });
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    full_name: '',
+    phone: '',
+    address: ''
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,6 +32,11 @@ const Auth = () => {
       });
       
       const data = await response.json();
+      if (data.token && data.user) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.user.id);
+      }
+
       if (!response.ok) throw new Error(data.error || 'Something went wrong');
       
       if (isSignUp) {
@@ -52,17 +63,40 @@ const Auth = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {isSignUp && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-              <input
-                type="text"
-                name="full_name"
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={formData.full_name}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <input
+                  type="text"
+                  name="full_name"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.full_name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <textarea
+                  name="address"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                ></textarea>
+              </div>
+            </>
           )}
 
           <div>
