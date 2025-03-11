@@ -1,49 +1,47 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import toast from 'react-hot-toast'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Auth = () => {
-  const navigate = useNavigate()
-  const [isSignUp, setIsSignUp] = React.useState(false)
-  const [loading, setLoading] = React.useState(false)
-  const [formData, setFormData] = React.useState({
-    email: '',
-    password: '',
-    full_name: ''
-  })
+  const navigate = useNavigate();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({ email: '', password: '', full_name: '' });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-  
+    e.preventDefault();
+    setLoading(true);
+    
     try {
-      const url = isSignUp ? 'http://localhost:5000/auth/signup' : 'http://localhost:5000/auth/login'
-      
+      const url = `http://localhost:5000/auth/${isSignUp ? 'signup' : 'login'}`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      })
-  
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error)
-  
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Something went wrong');
+      
       if (isSignUp) {
-        toast.success('Registration successful! Please sign in.')
-        setIsSignUp(false)
+        toast.success('Registration successful! Please sign in.');
+        setIsSignUp(false);
       } else {
-        toast.success('Welcome back!')
-        localStorage.setItem('token', data.token) // Save token for future API calls
-        navigate('/')
+        toast.success('Welcome back!');
+        localStorage.setItem('token', data.token);
+        navigate('/');
       }
     } catch (error) {
-      console.error('Auth error:', error)
-      toast.error(error.message || 'Authentication failed')
+      toast.error(error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-  
+  };
 
   return (
     <div className="max-w-md mx-auto">
@@ -55,41 +53,38 @@ const Auth = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {isSignUp && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
               <input
                 type="text"
+                name="full_name"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={formData.full_name}
-                onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                required={isSignUp}
+                onChange={handleChange}
+                required
               />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
             <input
               type="email"
+              name="email"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              onChange={handleChange}
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
             <input
               type="password"
+              name="password"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={formData.password}
-              onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              onChange={handleChange}
               required
             />
           </div>
@@ -111,18 +106,13 @@ const Auth = () => {
         </form>
 
         <div className="mt-6 text-center">
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            {isSignUp
-              ? 'Already have an account? Sign In'
-              : "Don't have an account? Sign Up"}
+          <button onClick={() => setIsSignUp(!isSignUp)} className="text-blue-600 hover:text-blue-800">
+            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
           </button>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Auth
+export default Auth;
