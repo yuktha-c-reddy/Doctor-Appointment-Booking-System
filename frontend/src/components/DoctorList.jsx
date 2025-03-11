@@ -53,7 +53,7 @@ const DoctorList = () => {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-6">Find a Doctor</h1>
+        <h1 className="text-3xl font-bold mb-6" style={{ color: "#0752e8", fontSize: "30px"}}>Find a Doctor</h1>
         
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
@@ -83,11 +83,7 @@ const DoctorList = () => {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredDoctors.map((doctor) => (
           <div key={doctor.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <img
-              src={doctor.image_url || `https://source.unsplash.com/random/400x300?doctor&sig=${doctor.id}`}
-              alt={doctor.name}
-              className="w-full h-48 object-cover"
-            />
+            
             
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-2">{doctor.name}</h2>
