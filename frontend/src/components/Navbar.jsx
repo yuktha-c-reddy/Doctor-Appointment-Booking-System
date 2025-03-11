@@ -15,6 +15,7 @@ const Navbar = () => {
 
   const fetchUserProfile = async (token) => {
     try {
+      console.log(token)
       const response = await fetch("http://localhost:5000/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
