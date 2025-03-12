@@ -4,6 +4,7 @@
 *,
 :before,
 :after {
+  font-family: monospace;
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
   --tw-translate-x: 0;
